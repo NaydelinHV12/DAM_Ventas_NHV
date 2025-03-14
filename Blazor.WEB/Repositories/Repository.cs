@@ -1,5 +1,4 @@
-﻿
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text;
 
 namespace Blazor.WEB.Repositories
@@ -34,14 +33,15 @@ namespace Blazor.WEB.Repositories
             var mesageJSON = JsonSerializer.Serialize(model);
             var messageContet = new StringContent(mesageJSON, Encoding.UTF8, "application/json");
             var responseHttp = await _httpClient.PostAsync(url, messageContet);
-
             return new HttpResponseWrapper<object>(null, !responseHttp.IsSuccessStatusCode, responseHttp);
         }
 
         public async Task<HttpResponseWrapper<TResponse>> Post<T, TResponse>(string url, T model)
         {
             var messageJSON = JsonSerializer.Serialize(model);
+
             var messageContet = new StringContent(messageJSON, Encoding.UTF8, "application/json");
+
             var responseHttp = await _httpClient.PostAsync(url, messageContet);
             
             if (responseHttp.IsSuccessStatusCode)
@@ -51,13 +51,12 @@ namespace Blazor.WEB.Repositories
                 return new HttpResponseWrapper<TResponse>(response, false, responseHttp);
             }
 
-            return new HttpResponseWrapper<TResponse>(default, !responseHttp.IsSuccessStatusCode, responseHttp);
+            return new HttpResponseWrapper<TResponse>(default, responseHttp.IsSuccessStatusCode, responseHttp);
         }
 
         private async Task<T> UnserializeAnswer<T>(HttpResponseMessage httpResponse, JsonSerializerOptions jsonSerializerOptions)
         {
             var respuestaString = await httpResponse.Content.ReadAsStringAsync();
-
             return JsonSerializer.Deserialize<T>(respuestaString, jsonSerializerOptions)!;
         }
 
